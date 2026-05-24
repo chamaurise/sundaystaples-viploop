@@ -4,13 +4,7 @@ A small standalone VIP engagement loop for testing missions, status, access rewa
 
 ## Run Locally
 
-This prototype is dependency-free. Open `index.html` directly, or serve the folder:
-
-```bash
-node server.mjs
-```
-
-Then visit `http://localhost:4173`.
+This export is dependency-free. Open `index.html` directly for a quick local preview.
 
 ## Prototype Scope
 
@@ -22,4 +16,11 @@ Then visit `http://localhost:4173`.
 
 ## Vercel
 
-This can deploy as a static site. In Vercel, import the repository and leave the build command empty.
+This deploys as a static site. In Vercel, import the repository with:
+
+- Framework preset: `Other`
+- Build command: leave blank
+- Output directory: leave blank
+- Install command: leave blank
+
+Do not use `node server.mjs`, `npm start`, or any serverless function setting on Vercel. This export intentionally has no `package.json` and no Node server.
