@@ -539,8 +539,127 @@ button {
 .quest-log,
 .tier-ladder,
 .accessory-case,
-.studio-desk {
+.studio-desk,
+.vip-pass,
+.next-best-mission,
+.influence-recap,
+.reward-wallet {
   margin-top: 26px;
+}
+
+.vip-pass,
+.next-mission-card,
+.influence-card,
+.perk-card,
+.mission-value-panel {
+  border: 2px solid rgba(38, 34, 31, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 12px 28px rgba(38, 34, 31, 0.08);
+}
+
+.vip-pass {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 240, 199, 0.94), rgba(255, 255, 255, 0.82)),
+    #fff7df;
+}
+
+.vip-pass span,
+.next-mission-card span,
+.influence-card span,
+.perk-card span,
+.mission-value-panel span,
+.mission-value-panel dt {
+  color: var(--coral);
+  font-size: 0.72rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.vip-pass strong,
+.next-mission-card strong,
+.influence-card strong,
+.perk-card strong,
+.mission-value-panel strong {
+  color: var(--ink);
+}
+
+.vip-pass p,
+.next-mission-card p,
+.influence-card p,
+.perk-card p,
+.mission-value-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.next-mission-card {
+  display: grid;
+  width: 100%;
+  gap: 8px;
+  padding: 14px;
+  text-align: left;
+}
+
+button.next-mission-card {
+  border-color: var(--ink);
+  background: #fff7df;
+}
+
+.next-mission-card small {
+  color: var(--green-dark);
+  font-weight: 950;
+}
+
+.influence-card {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+}
+
+.influence-ring {
+  display: grid;
+  width: 82px;
+  height: 82px;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #fff8eb 0 56%, transparent 57%),
+    conic-gradient(var(--gold) var(--score), rgba(38, 34, 31, 0.1) 0);
+}
+
+.influence-ring strong {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.influence-ring span {
+  margin-top: -18px;
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+#rewardWallet {
+  display: grid;
+  gap: 10px;
+}
+
+.perk-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  color: var(--muted);
+}
+
+.perk-card.unlocked {
+  border-color: rgba(210, 164, 67, 0.72);
+  background: #fff0c7;
 }
 
 .quest-log ul,
@@ -1126,10 +1245,16 @@ fieldset {
 
 .briefing-card p,
 .briefing-card small,
-.briefing-card span {
+.briefing-card span,
+.briefing-card em {
   margin: 0;
   color: var(--muted);
   font-weight: 800;
+}
+
+.briefing-card em {
+  color: var(--green-dark);
+  font-style: normal;
 }
 
 .briefing-card strong {
@@ -1283,6 +1408,41 @@ fieldset {
   font-weight: 900;
 }
 
+.mission-value-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 240, 199, 0.78), rgba(255, 255, 255, 0.86)),
+    #fff;
+}
+
+.mission-value-panel dl {
+  display: grid;
+  gap: 8px;
+  min-width: 138px;
+  margin: 0;
+}
+
+.mission-value-panel div {
+  min-width: 0;
+}
+
+.mission-value-panel dd {
+  margin: 2px 0 0;
+  color: var(--ink);
+  font-weight: 950;
+}
+
+.insight-card b {
+  display: block;
+  margin-top: 8px;
+  color: var(--green-dark);
+  font-size: 0.9rem;
+}
+
 @media (max-width: 980px) {
   .campus-wrap,
   .creator-card {
@@ -1316,6 +1476,16 @@ fieldset {
     width: 138px;
     min-height: 116px;
     padding: 10px;
+  }
+
+  .influence-card,
+  .mission-value-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .influence-ring {
+    width: 74px;
+    height: 74px;
   }
 
   .station-duel { left: 18px; }

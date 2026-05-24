@@ -89,7 +89,11 @@ const missionData = {
     log: "Head-to-head comparison complete",
     xp: 80,
     deskItem: "duel-card",
-    guide: "A clean head-to-head helps the studio see instinct, not overthinking."
+    guide: "A clean head-to-head helps the studio see instinct, not overthinking.",
+    stake: "Decides which silhouette earns the next sample slot.",
+    customerHook: "Your vote can push a contender into the first prototype sprint.",
+    estimatedTime: "2 min",
+    impactUnit: "sample confidence"
   },
   rank: {
     type: "Mission 2",
@@ -98,7 +102,11 @@ const missionData = {
     log: "Purchase-intent ranking complete",
     xp: 110,
     deskItem: "rank-notes",
-    guide: "Rank with your gut first. The order tells us what deserves the sharper prototype."
+    guide: "Rank with your gut first. The order tells us what deserves the sharper prototype.",
+    stake: "Sets the priority order for launch planning.",
+    customerHook: "Your order helps the team avoid backing the loudest concept over the most buyable one.",
+    estimatedTime: "90 sec",
+    impactUnit: "intent clarity"
   },
   price: {
     type: "Mission 3",
@@ -107,7 +115,11 @@ const missionData = {
     log: "Comfortable price ceilings submitted",
     xp: 100,
     deskItem: "price-tag",
-    guide: "The ceiling matters more than a dream price. Show us where desire meets comfort."
+    guide: "The ceiling matters more than a dream price. Show us where desire meets comfort.",
+    stake: "Finds the premium ceiling before pricing is locked.",
+    customerHook: "Your ceiling helps protect the launch from being underpriced or overreaching.",
+    estimatedTime: "2 min",
+    impactUnit: "price confidence"
   },
   occasion: {
     type: "Mission 4",
@@ -116,7 +128,11 @@ const missionData = {
     log: "Occasion fit mapped",
     xp: 90,
     deskItem: "calendar",
-    guide: "Occasions reveal the role each shoe can play in real life."
+    guide: "Occasions reveal the role each shoe can play in real life.",
+    stake: "Shapes campaign styling, product copy, and merchandised use cases.",
+    customerHook: "Your occasion map tells us where the shoe should live in real wardrobes.",
+    estimatedTime: "90 sec",
+    impactUnit: "positioning fit"
   },
   founder: {
     type: "Mission 5",
@@ -125,6 +141,10 @@ const missionData = {
     log: "Founder action selected",
     xp: 120,
     deskItem: "founder-pin",
+    stake: "Turns VIP reads into a concrete founder action.",
+    customerHook: "Your call helps decide whether we sample, retest, price, or campaign next.",
+    estimatedTime: "1 min",
+    impactUnit: "founder priority",
     guide: "This is your direct line to the founder’s next move. Pick the action with highest leverage."
   }
 };
@@ -197,6 +217,39 @@ const accessories = [
     tier: "Market Oracle",
     xp: 500,
     className: "has-aura"
+  }
+];
+
+const rewardPerks = [
+  {
+    id: "points-boost",
+    title: "Sunday Points Boost",
+    unlockXp: 80,
+    detail: "Complete one mission to qualify for bonus Sunday Points during live research waves."
+  },
+  {
+    id: "early-window",
+    title: "Early Reservation Window",
+    unlockXp: 200,
+    detail: "Category Insiders unlock a private reservation window for concepts shaped by VIP signals."
+  },
+  {
+    id: "founder-note",
+    title: "Founder Signal Recap",
+    unlockXp: 300,
+    detail: "Launch Circle members receive the founder recap on what VIP feedback changed."
+  },
+  {
+    id: "launch-credit",
+    title: "Launch Circle Credit",
+    unlockXp: 400,
+    detail: "Product Council Members can be featured as part of the private product council."
+  },
+  {
+    id: "oracle-pass",
+    title: "Market Oracle Pass",
+    unlockXp: 500,
+    detail: "Market Oracles receive first-look access to highest-stakes product decisions."
   }
 ];
 
@@ -420,6 +473,9 @@ const tierMeta = document.querySelector("#tierMeta");
 const xpFill = document.querySelector("#xpFill");
 const nextTier = document.querySelector("#nextTier");
 const tierLadder = document.querySelector("#tierLadder");
+const nextBestMission = document.querySelector("#nextBestMission");
+const influenceRecap = document.querySelector("#influenceRecap");
+const rewardWallet = document.querySelector("#rewardWallet");
 const accessoryCase = document.querySelector("#accessoryCase");
 const studioDesk = document.querySelector("#studioDesk");
 const founderBriefing = document.querySelector("#founderBriefing");
@@ -471,8 +527,13 @@ const tourSteps = [
   },
   {
     title: "Missions award EXP",
-    body: "Each completed mission gives EXP once. EXP unlocks status, accessories, and a richer role in the Sunday Staples co-creation circle.",
+    body: "Each completed mission gives EXP once. EXP unlocks status, accessories, Sunday Points opportunities, early access, and a richer role in the Sunday Staples co-creation circle.",
     destinations: Object.values(missionData).map((mission) => `${mission.title}: +${mission.xp} XP`)
+  },
+  {
+    title: "Your choices change the brief",
+    body: "After each mission, you see the founder-ready signal your answer created. Later, that recap can become the customer proof that Sunday Staples listened.",
+    destinations: ["Signal recap", "Founder action", "Launch proof", "VIP follow-up"]
   },
   {
     title: "Climb the VIP career ladder",
@@ -569,7 +630,13 @@ function renderQuestLog() {
   questLog.innerHTML = Object.entries(missionData)
     .map(([id, mission]) => {
       const done = state.completed.has(id);
-      return `<li class="${done ? "done" : ""}">${done ? "Done: " : ""}${mission.log} <small>+${mission.xp} XP</small></li>`;
+      return `
+        <li class="${done ? "done" : ""}">
+          ${done ? "Done: " : ""}${mission.log}
+          <small>${mission.stake}</small>
+          <small>+${mission.xp} XP | ${mission.estimatedTime}</small>
+        </li>
+      `;
     })
     .join("");
 
@@ -581,6 +648,84 @@ function renderQuestLog() {
   });
 
   renderProgression();
+  renderNextBestMission();
+  renderInfluenceRecap();
+  renderRewardWallet();
+}
+
+function getNextOpenMissionId() {
+  return Object.keys(missionData).find((id) => !state.completed.has(id));
+}
+
+function renderNextBestMission() {
+  if (!nextBestMission) return;
+  const nextId = getNextOpenMissionId();
+  if (!nextId) {
+    nextBestMission.innerHTML = `
+      <article class="next-mission-card complete">
+        <span>All departments reporting</span>
+        <strong>Founder brief is ready</strong>
+        <p>You have completed the full VIP research loop. Your signal set is ready for staff review.</p>
+      </article>
+    `;
+    return;
+  }
+  const mission = missionData[nextId];
+  const nextTier = getNextTier();
+  const xpGap = nextTier ? Math.max(0, nextTier.xp - state.xp) : 0;
+  nextBestMission.innerHTML = `
+    <button class="next-mission-card" type="button" data-jump-mission="${nextId}">
+      <span>${mission.estimatedTime} | +${mission.xp} XP</span>
+      <strong>${mission.title}</strong>
+      <p>${mission.customerHook}</p>
+      <small>${nextTier ? `${xpGap} XP to ${nextTier.name}` : "Top tier reached"}</small>
+    </button>
+  `;
+}
+
+function getInfluenceScore() {
+  const completedScore = state.completed.size * 14;
+  const xpScore = Math.min(30, Math.round(state.xp / 18));
+  const profileScore = state.player.pointsId ? 8 : 0;
+  return Math.min(100, completedScore + xpScore + profileScore);
+}
+
+function renderInfluenceRecap() {
+  if (!influenceRecap) return;
+  const completed = Object.keys(state.responses);
+  const latestId = completed.at(-1);
+  const latest = latestId ? state.responses[latestId] : null;
+  const score = getInfluenceScore();
+  const moved = latestId ? missionData[latestId].impactUnit : "launch confidence";
+  influenceRecap.innerHTML = `
+    <article class="influence-card">
+      <div class="influence-ring" style="--score:${score}%">
+        <strong>${score}</strong>
+        <span>influence</span>
+      </div>
+      <div>
+        <span>${completed.length}/5 signal rooms complete</span>
+        <strong>${latest ? latest.insight.title : "No product signal yet"}</strong>
+        <p>${latest ? `Your latest answer increased ${moved} for the staff read.` : "Complete one mission to see how your response changes the product read."}</p>
+      </div>
+    </article>
+  `;
+}
+
+function renderRewardWallet() {
+  if (!rewardWallet) return;
+  rewardWallet.innerHTML = rewardPerks
+    .map((perk) => {
+      const unlocked = state.xp >= perk.unlockXp;
+      return `
+        <article class="perk-card ${unlocked ? "unlocked" : ""}">
+          <span>${unlocked ? "Unlocked" : `${perk.unlockXp} XP`}</span>
+          <strong>${perk.title}</strong>
+          <p>${perk.detail}</p>
+        </article>
+      `;
+    })
+    .join("");
 }
 
 function renderAccessories() {
@@ -614,6 +759,7 @@ function renderFounderBriefing() {
   const latestId = Object.keys(state.responses).at(-1);
   const latest = latestId ? state.responses[latestId] : null;
   const topSignal = latest ? latest.insight.title : "Awaiting first signal";
+  const nextId = getNextOpenMissionId();
   const profileLine = state.player.pointsId
     ? `${state.player.role} | ${state.player.stylePriority} | ${state.player.occasion}`
     : "Link Sunday Points to connect profile and mission signals.";
@@ -623,6 +769,7 @@ function renderFounderBriefing() {
     <strong>${topSignal}</strong>
     <small>${responseCount}/5 research departments reporting</small>
     ${latest ? `<span>${latest.insight.body}</span>` : "<span>Complete Footwear Duel first to generate the first founder-ready read.</span>"}
+    <em>${nextId ? `Next founder update unlocks after ${missionData[nextId].title}.` : "Full VIP brief ready: sampling, pricing, positioning, and founder action are all covered."}</em>
   `;
 }
 
@@ -637,9 +784,11 @@ function buildExportPayload() {
       stylePriority: state.player.stylePriority,
       occasion: state.player.occasion,
       tier: getCurrentTier().name,
-      xp: state.xp
+      xp: state.xp,
+      influenceScore: getInfluenceScore()
     },
     completed: Array.from(state.completed),
+    unlockedPerks: rewardPerks.filter((perk) => state.xp >= perk.unlockXp).map((perk) => perk.title),
     responses: state.responses
   };
 }
@@ -1055,7 +1204,7 @@ function openMission(id) {
   missionTitle.textContent = mission.title;
   missionIntro.textContent = mission.intro;
   guideLine.textContent = mission.guide;
-  missionContent.innerHTML = renderMissionContent(id);
+  missionContent.innerHTML = renderMissionValuePanel(id) + renderMissionContent(id);
   missionModal.classList.add("open");
   playTone(420, 0.08, "sine", 0.04);
 }
@@ -1139,12 +1288,15 @@ function renderInsightCard(id, insight, wasAlreadyComplete) {
   const noteEl = missionContent.querySelector(".mission-note");
   if (!noteEl) return;
   const xpNote = wasAlreadyComplete ? "XP already claimed." : `+${missionData[id].xp} XP awarded.`;
+  const score = getInfluenceScore();
+  const nextId = getNextOpenMissionId();
   noteEl.innerHTML = `
     <span class="insight-card">
       <small>Founder-ready insight</small>
       <strong>${escapeHtml(insight.title)}</strong>
       <span>${escapeHtml(insight.body)}</span>
       <em>${xpNote}</em>
+      <b>${score}/100 influence score. ${nextId ? `Next best mission: ${missionData[nextId].title}.` : "Full founder brief unlocked."}</b>
     </span>
   `;
 }
@@ -1227,6 +1379,24 @@ function renderDuelContender(name, detail, shoeIndex, inputName, checked = false
 
 function renderPriceBand(value) {
   return priceBands.find((band) => value <= band.max)?.label || priceBands.at(-1).label;
+}
+
+function renderMissionValuePanel(id) {
+  const mission = missionData[id];
+  const completed = state.completed.has(id);
+  return `
+    <section class="mission-value-panel">
+      <div>
+        <span>Why this matters</span>
+        <strong>${mission.stake}</strong>
+        <p>${mission.customerHook}</p>
+      </div>
+      <dl>
+        <div><dt>Reward</dt><dd>${completed ? "XP claimed" : `+${mission.xp} XP`}</dd></div>
+        <div><dt>Time</dt><dd>${mission.estimatedTime}</dd></div>
+      </dl>
+    </section>
+  `;
 }
 
 function renderMissionContent(id) {
@@ -1701,6 +1871,14 @@ bottomNavButtons.forEach((button) => {
     window.requestAnimationFrame(() => element.classList.add("section-pulse"));
     if (target === "settings") showToast("Settings: walkthrough, ladder, sound, and staff console are available from here.");
   });
+});
+
+document.addEventListener("click", (event) => {
+  const missionJump = event.target.closest("[data-jump-mission]");
+  if (!missionJump) return;
+  const missionId = missionJump.dataset.jumpMission;
+  if (!missionData[missionId]) return;
+  handleStationClick(missionId);
 });
 
 closeMission.addEventListener("click", () => {
